@@ -47,29 +47,29 @@ def depth_direction():
         return False
 
 def breadth_search():
+    #Create queue and enqueue start room as a list
     global visited
     visited_paths = {}
     starting_room = player.current_room
-    #create an empty queue and enqueue the starting room as a list
     path_queue = []
     path_queue.append([starting_room])
-    #while the queue isnt empty
+
+    #Queue isn't empty, how to check?
+    # Get the path, remove from q, set current TO LAST, track on visited_paths, check against list and return
     while len(path_queue) > 0:
-        #get the current path
         cur_path = path_queue[0]
-        #remove from queue
+
         path_queue.pop(0)
-        #set current room to last room in cur path
+
         cur_room = cur_path[-1]
-        #add path to visited_paths to prevent infinite loop
+
         visited_paths[cur_room] = cur_path
-        #check if that room has been visited
+
         if cur_room not in visited:
-            #if not return the path to the room
             cur_path.pop(0)
             backtrack_path = []
 
-            #add directions to find first unknown room
+        #Track directions to find unknown rooms, must use cardinal
             for i in range(0, len(cur_path)):
                 if starting_room.get_room_in_direction('n') == cur_path[i]:
                     starting_room = cur_path[i]
@@ -86,26 +86,24 @@ def breadth_search():
 
             return backtrack_path
 
-        #if it has been visited add path to neighbors to queue
+        #Add to neighbors q if it HAS been visited, and make sure path is unchecked
         if cur_room in visited:
             for direction in cur_room.get_exits():
                 new_path = list(cur_path)
                 new_path.append(cur_room.get_room_in_direction(direction))
-                #make sure path has not been checked already
+
                 if new_path[-1] not in visited_paths:
                     path_queue.append(new_path)
 
 def adv():
-    #add cur room to visited
     visited.add(player.current_room)
 
     playing = True
     dft = True
     bft = True
-    #main game loops
+    #Run DFT first in a play loop, then check with BFT
     while playing:
 
-        #dft traversal
         while dft:
             bft = True
             #Call depth direction to traverse until there is no new paths
@@ -117,7 +115,6 @@ def adv():
                 player.travel(direction)
                 visited.add(player.current_room)
 
-        #bft traversal
         while bft:
             #Call breadth search to path to nearest unknown. Once backtrack is done, resume DFT search
             backtrack_path = breadth_search()
